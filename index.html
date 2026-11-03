@@ -1,0 +1,487 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style></head><body><title>English Word Wolf</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Zen+Kaku+Gothic+New:wght@400;700&display=swap">
+<style>
+/* Layout: one narrow column sized for a phone held in class; the word card is the hero of every round. */
+:root {
+  --bg: #e9eef4;
+  --surface: #ffffff;
+  --ink: #16233b;
+  --muted: #5b6880;
+  --line: #c9d3e0;
+  --accent: #e0a100;
+  --accent-ink: #1b1400;
+  --night: #1d2d4f;
+  --night-ink: #f3f6fb;
+  --danger: #c2412d;
+  --display: "Bricolage Grotesque", "Arial Rounded MT Bold", "Helvetica Neue", Arial, sans-serif;
+  --body: "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
+  --radius: 14px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1626; --surface: #172238; --ink: #e8edf6; --muted: #9aa8c0; --line: #2c3a56;
+    --accent: #f2b625; --accent-ink: #1b1400; --night: #24375f; --night-ink: #f3f6fb; --danger: #f07a63;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1626; --surface: #172238; --ink: #e8edf6; --muted: #9aa8c0; --line: #2c3a56;
+  --accent: #f2b625; --accent-ink: #1b1400; --night: #24375f; --night-ink: #f3f6fb; --danger: #f07a63;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 18px 40px;
+}
+main { max-width: 30rem; margin: 0 auto; display: grid; gap: 18px; }
+h1, h2 { font-family: var(--display); text-wrap: balance; margin: 0; line-height: 1.15; }
+h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.01em; }
+h1 .moon { display: inline-block; width: 0.62em; height: 0.62em; border-radius: 50%; background: var(--accent);
+  box-shadow: inset -0.16em -0.08em 0 0 var(--bg); vertical-align: 0.08em; margin-left: 0.18em; }
+h2 { font-size: 1.15rem; font-weight: 600; }
+p { margin: 0; }
+.lead { color: var(--muted); font-size: 0.95rem; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; display: grid; gap: 14px; }
+.label { font-size: 0.78rem; letter-spacing: 0.06em; color: var(--muted); font-weight: 700; }
+button, select, input { font: inherit; color: inherit; }
+button { cursor: pointer; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); padding: 12px 16px; font-weight: 700; min-height: 48px; }
+button.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+button.dark { background: var(--night); color: var(--night-ink); border-color: transparent; }
+button.ghost { background: transparent; }
+button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+button:disabled { opacity: 0.45; cursor: default; }
+select, input { width: 100%; border: 1px solid var(--line); background: var(--bg); border-radius: 10px; padding: 12px; min-height: 48px; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; }
+.row > * { flex: 1 1 8rem; }
+.code-big { font-family: var(--display); font-weight: 800; font-size: 3.2rem; letter-spacing: 0.12em; text-align: center; font-variant-numeric: tabular-nums; }
+.code-input { font-family: var(--display); font-size: 2rem; letter-spacing: 0.3em; text-align: center; font-variant-numeric: tabular-nums; }
+.players { display: grid; grid-template-columns: repeat(auto-fit, minmax(3.2rem, 1fr)); gap: 8px; }
+.players button { font-family: var(--display); font-size: 1.4rem; padding: 8px; }
+.players button[aria-pressed="true"] { background: var(--night); color: var(--night-ink); border-color: transparent; }
+.status { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 0.9rem; color: var(--muted); }
+.status b { color: var(--ink); font-family: var(--display); font-size: 1.05rem; }
+.roundbar { display: grid; grid-template-columns: 48px 1fr 48px; align-items: center; gap: 8px; }
+.roundbar button { padding: 0; font-size: 1.3rem; }
+.roundbar .num { text-align: center; font-family: var(--display); font-weight: 800; font-size: 1.6rem; }
+.roundbar .num small { display: block; font-family: var(--body); font-weight: 400; font-size: 0.75rem; color: var(--muted); }
+.card { background: var(--night); color: var(--night-ink); border-radius: 20px; min-height: 15rem; display: grid; place-items: center; text-align: center; padding: 24px 18px; border: none; width: 100%; position: relative; }
+.card .tag { position: absolute; top: 14px; left: 16px; font-size: 0.8rem; opacity: 0.8; font-weight: 400; }
+.card .word { font-family: var(--display); font-weight: 800; font-size: clamp(2.2rem, 11vw, 3.4rem); line-height: 1.05; overflow-wrap: anywhere; }
+.card .gloss { margin-top: 8px; font-size: 1rem; opacity: 0.85; font-weight: 400; }
+.card .use { display: inline-block; margin-top: 14px; background: var(--accent); color: var(--accent-ink); border-radius: 999px; padding: 4px 14px; font-size: 0.9rem; }
+.card .warn { margin-top: 10px; font-size: 0.8rem; opacity: 0.75; font-weight: 400; }
+.card .closed { font-size: 1.1rem; }
+.card .closed span { display: block; font-size: 0.85rem; opacity: 0.75; font-weight: 400; margin-top: 6px; }
+.timer { display: grid; gap: 10px; }
+.clock { font-family: var(--display); font-weight: 800; font-size: 2.6rem; text-align: center; font-variant-numeric: tabular-nums; }
+.clock.done { color: var(--danger); }
+.phase { text-align: center; color: var(--muted); font-size: 0.9rem; }
+details { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 18px; }
+summary { font-weight: 700; cursor: pointer; }
+.phrases { display: grid; gap: 12px; margin-top: 12px; }
+.phrases h3 { margin: 0 0 4px; font-size: 0.85rem; color: var(--muted); }
+.phrases ul { margin: 0; padding-left: 1.1em; }
+.phrases b { color: var(--accent); }
+:root[data-theme="light"] .phrases b, :root:not([data-theme]) .phrases b { color: inherit; text-decoration: underline; text-decoration-color: var(--accent); text-decoration-thickness: 3px; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme]) .phrases b { color: var(--accent); text-decoration: none; } }
+.answer { display: grid; gap: 10px; }
+.answer .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.answer .pair div { border: 1px solid var(--line); border-radius: 12px; padding: 10px; text-align: center; }
+.answer .pair strong { display: block; font-family: var(--display); font-size: 1.3rem; }
+.answer .wolf { text-align: center; font-size: 1.05rem; }
+.answer .wolf strong { font-family: var(--display); font-size: 1.6rem; color: var(--danger); }
+.steps { margin: 0; padding-left: 1.3em; display: grid; gap: 4px; font-size: 0.95rem; }
+.error { color: var(--danger); font-size: 0.9rem; min-height: 1.4em; }
+.toggle { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; }
+.toggle input { width: 22px; height: 22px; min-height: 0; }
+@media (prefers-reduced-motion: no-preference) { .card { transition: transform 0.15s ease; } .card:active { transform: scale(0.98); } }
+</style>
+
+<main id="app">
+  <!-- Home -->
+  <section id="home" class="panel-stack" style="display:grid;gap:18px">
+    <header style="display:grid;gap:6px">
+      <h1>English Word Wolf<span class="moon" aria-hidden="true"></span></h1>
+      <p class="lead">グループで同じルームコードを入力すると、1人だけ違う単語が配られます。英語で説明して、少数派（ウルフ）を見つけよう。</p>
+    </header>
+    <div class="panel">
+      <h2>ルームに参加する</h2>
+      <label class="label" for="join-code">ルームコード（6けた）</label>
+      <input id="join-code" class="code-input" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="000000">
+      <p class="error" id="join-error" aria-live="polite"></p>
+      <button class="primary" id="join-btn">参加する</button>
+    </div>
+    <div class="panel">
+      <h2>ルームを作る（グループで1人）</h2>
+      <div>
+        <label class="label" for="set-select">単語セット</label>
+        <select id="set-select"></select>
+      </div>
+      <div>
+        <label class="label" for="count-select">人数</label>
+        <select id="count-select">
+          <option value="3">3人</option><option value="4">4人</option><option value="5" selected>5人</option><option value="6">6人</option>
+        </select>
+      </div>
+      <button class="dark" id="create-btn">ルームを作る</button>
+    </div>
+    <details>
+      <summary>遊び方</summary>
+      <ol class="steps" style="margin-top:10px">
+        <li>グループの1人がルームを作り、コードをみんなに伝える。</li>
+        <li>全員がコードを入力し、<b>グループ内で重ならないように</b>番号を選ぶ。</li>
+        <li>カードをタップして自分の単語を見る。他の人に画面を見せない。</li>
+        <li>単語を言わずに、1人1文ずつ英語で説明する。</li>
+        <li>質問タイムのあと、「せーの」でウルフだと思う人を指さす。</li>
+        <li>「答え合わせ」で結果を確認し、全員そろって次のラウンドへ。</li>
+      </ol>
+    </details>
+  </section>
+
+  <!-- Room created -->
+  <section id="created" hidden style="display:grid;gap:18px">
+    <div class="panel" style="text-align:center">
+      <p class="label">ルームコード</p>
+      <p class="code-big" id="created-code">000000</p>
+      <p class="lead" id="created-info"></p>
+      <p>このコードをグループのみんなに伝えてください。</p>
+      <button class="primary" id="created-join">自分も参加する</button>
+      <button class="ghost" id="created-back">戻る</button>
+    </div>
+  </section>
+
+  <!-- Pick player number -->
+  <section id="pick" hidden style="display:grid;gap:18px">
+    <div class="panel">
+      <p class="status"><span>ルーム <b id="pick-code"></b></span><span id="pick-set"></span></p>
+      <h2>自分の番号を選ぶ</h2>
+      <p class="lead">グループ内で同じ番号を選ばないようにしてください。</p>
+      <div class="players" id="player-buttons"></div>
+      <button class="primary" id="pick-go" disabled>スタート</button>
+      <button class="ghost" id="pick-back">戻る</button>
+    </div>
+  </section>
+
+  <!-- Game -->
+  <section id="game" hidden style="display:grid;gap:18px">
+    <div class="status">
+      <span>ルーム <b id="g-code"></b></span>
+      <span>あなたは <b id="g-player"></b></span>
+    </div>
+    <div class="roundbar">
+      <button id="prev-round" aria-label="前のラウンド">‹</button>
+      <div class="num"><span id="g-round">Round 1</span><small>全員のラウンドがそろっているか確認</small></div>
+      <button id="next-round" aria-label="次のラウンド">›</button>
+    </div>
+    <button class="card" id="card" aria-live="polite"></button>
+    <label class="toggle"><input type="checkbox" id="gloss-toggle" checked> 和訳を表示する</label>
+
+    <div class="panel timer">
+      <p class="phase" id="phase">タイマー</p>
+      <p class="clock" id="clock">0:00</p>
+      <div class="row">
+        <button class="dark" id="t-explain">説明 3分</button>
+        <button class="dark" id="t-question">質問 1分30秒</button>
+      </div>
+      <button class="ghost" id="t-stop">ストップ</button>
+    </div>
+
+    <details id="phrases-box">
+      <summary>使える表現</summary>
+      <div class="phrases" id="phrases"></div>
+    </details>
+
+    <div class="panel answer" id="answer-panel">
+      <h2>答え合わせ</h2>
+      <div id="answer-gate">
+        <p class="lead" style="margin-bottom:10px">全員が指さしで投票してから開いてください。</p>
+        <button class="primary" id="reveal-btn" style="width:100%">答えを見る</button>
+      </div>
+      <div id="answer-body" hidden class="answer">
+        <div class="pair">
+          <div><span class="label">多数派</span><strong id="a-major"></strong></div>
+          <div><span class="label">少数派（ウルフ）</span><strong id="a-minor"></strong></div>
+        </div>
+        <p class="wolf">ウルフは <strong id="a-wolf"></strong></p>
+        <p class="lead" style="text-align:center">ウルフが選ばれても、多数派の単語を当てたらウルフの逆転勝ち！</p>
+        <button class="primary" id="next-btn">次のラウンドへ</button>
+      </div>
+    </div>
+    <button class="ghost" id="leave-btn">ルームを出る</button>
+  </section>
+</main>
+
+<script>
+// Word sets: [hint, majority, gloss, minority, gloss]
+const SETS = {
+  1: {
+    name: "関係副詞 where / when",
+    pairs: [
+      ["where", "library", "図書館", "bookstore", "書店"],
+      ["where", "hospital", "病院", "drugstore", "薬局・ドラッグストア"],
+      ["where", "park", "公園", "garden", "庭・庭園"],
+      ["where", "swimming pool", "プール", "beach", "海辺・ビーチ"],
+      ["where", "restaurant", "レストラン", "cafe", "カフェ"],
+      ["where", "airport", "空港", "train station", "駅"],
+      ["where", "bedroom", "寝室", "living room", "居間・リビング"],
+      ["where", "convenience store", "コンビニ", "supermarket", "スーパー"],
+      ["where", "movie theater", "映画館", "concert hall", "コンサートホール"],
+      ["where", "zoo", "動物園", "aquarium", "水族館"],
+      ["where", "shrine", "神社", "temple", "寺"],
+      ["where", "hot spring", "温泉", "public bath", "銭湯"],
+      ["when", "morning", "朝", "evening", "夕方・晩"],
+      ["when", "spring", "春", "autumn", "秋"],
+      ["when", "summer vacation", "夏休み", "winter vacation", "冬休み"],
+      ["when", "birthday", "誕生日", "Christmas", "クリスマス"],
+      ["when", "New Year's Day", "元日", "New Year's Eve", "大みそか"],
+      ["when", "school festival", "文化祭", "sports day", "運動会・体育祭"],
+      ["when", "Valentine's Day", "バレンタインデー", "White Day", "ホワイトデー"],
+      ["when", "lunch break", "昼休み", "after school", "放課後"],
+    ],
+    phrases: [
+      ["場所 → where", ["It's a place <b>where</b> you can …", "It's a place <b>where</b> people usually …", "It's a room <b>where</b> you …", "It's a store <b>where</b> you can buy …"]],
+      ["時 → when", ["It's a time <b>when</b> you …", "It's a day <b>when</b> people …", "It's a season <b>when</b> …", "It's a month <b>when</b> …"]],
+      ["質問する", ["Is it a place <b>where</b> you can eat?", "Is it a day <b>when</b> you go to school?", "Do you go there often?"]],
+      ["疑う", ["I'm not sure, but …", "I think ___'s explanation was a bit different."]],
+    ],
+  },
+  2: {
+    name: "抽象語（目に見えないもの）",
+    pairs: [
+      ["Feelings", "happiness", "幸せ", "satisfaction", "満足"],
+      ["Feelings", "anger", "怒り", "frustration", "いら立ち"],
+      ["Feelings", "fear", "恐怖", "anxiety", "不安"],
+      ["Feelings", "loneliness", "孤独", "sadness", "悲しみ"],
+      ["Feelings", "pride", "誇り", "confidence", "自信"],
+      ["Feelings", "regret", "後悔", "guilt", "罪悪感"],
+      ["Feelings", "hope", "希望", "wish", "願い"],
+      ["People", "trust", "信頼", "respect", "尊敬"],
+      ["People", "kindness", "親切", "politeness", "礼儀正しさ"],
+      ["People", "talent", "才能", "skill", "技術"],
+      ["People", "luck", "運", "chance", "機会"],
+      ["Society", "peace", "平和", "safety", "安全"],
+      ["Society", "justice", "正義", "fairness", "公平"],
+      ["Society", "freedom", "自由", "independence", "自立"],
+      ["Society", "responsibility", "責任", "duty", "義務"],
+      ["Society", "tradition", "伝統", "culture", "文化"],
+      ["Society", "privacy", "プライバシー", "secret", "秘密"],
+      ["Society", "success", "成功", "victory", "勝利"],
+      ["Ideas", "knowledge", "知識", "wisdom", "知恵"],
+      ["Ideas", "opinion", "意見", "belief", "信念"],
+    ],
+    phrases: [
+      ["説明する", ["It's a feeling (that) you have when …", "It's something (that) people need to …", "You can't see it, but you can …", "The opposite of it is …"]],
+      ["質問する", ["Is it a good feeling or a bad feeling?", "When do you usually feel it?", "Is it important for society?"]],
+      ["定義する（答え合わせの後）", ["<b>A</b> is …, while <b>B</b> is …", "The difference between <b>A</b> and <b>B</b> is that …"]],
+    ],
+  },
+  3: {
+    name: "身近な単語（練習用）",
+    pairs: [
+      ["", "dog", "犬", "cat", "猫"], ["", "coffee", "コーヒー", "tea", "紅茶・お茶"],
+      ["", "summer", "夏", "winter", "冬"], ["", "bus", "バス", "train", "電車"],
+      ["", "pen", "ペン", "pencil", "鉛筆"], ["", "breakfast", "朝食", "lunch", "昼食"],
+      ["", "piano", "ピアノ", "guitar", "ギター"], ["", "smartphone", "スマートフォン", "tablet", "タブレット"],
+      ["", "umbrella", "傘", "raincoat", "レインコート"], ["", "teacher", "先生", "parent", "親"],
+      ["", "sneakers", "スニーカー", "slippers", "スリッパ"], ["", "homework", "宿題", "test", "テスト"],
+      ["", "ice cream", "アイスクリーム", "shaved ice", "かき氷"], ["", "sushi", "寿司", "onigiri", "おにぎり"],
+      ["", "kotatsu", "こたつ", "futon", "布団"],
+    ],
+    phrases: [
+      ["説明する", ["It's something you use when …", "It's a kind of …", "You can find it in …", "It's usually bigger / smaller than …"]],
+      ["質問する", ["Do you use it every day?", "Is it expensive?"]],
+      ["疑う", ["I'm not sure, but …", "So what you're saying is … Is that right?"]],
+    ],
+  },
+};
+
+// Deterministic randomness: every phone in a room computes the same round from the code alone.
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// Code: digit 1 = word set, digit 2 = players, digits 3-6 = seed
+function parseCode(code) {
+  if (!/^\d{6}$/.test(code)) return null;
+  const set = Number(code[0]), players = Number(code[1]), seed = Number(code.slice(2));
+  if (!SETS[set] || players < 3 || players > 6) return null;
+  return { code, set, players, seed };
+}
+
+function roundFor(room, round) {
+  const pairs = SETS[room.set].pairs;
+  const order = pairs.map((_, i) => i);
+  const shuffle = mulberry32(room.seed * 7919 + room.set);
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(shuffle() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  const [hint, a, ag, b, bg] = pairs[order[(round - 1) % order.length]];
+  const r = mulberry32(room.seed * 104729 + round * 31 + room.set);
+  const wolf = Math.floor(r() * room.players) + 1;
+  const swap = r() < 0.5;
+  const major = swap ? [b, bg] : [a, ag];
+  const minor = swap ? [a, ag] : [b, bg];
+  return { hint, major, minor, wolf };
+}
+
+const $ = (id) => document.getElementById(id);
+const screens = ["home", "created", "pick", "game"];
+function show(name) { screens.forEach((s) => { $(s).hidden = s !== name; }); window.scrollTo(0, 0); }
+
+const store = {
+  get() { try { return JSON.parse(localStorage.getItem("wordwolf") || "null"); } catch { return null; } },
+  set(v) { try { localStorage.setItem("wordwolf", JSON.stringify(v)); } catch { /* storage unavailable */ } },
+  clear() { try { localStorage.removeItem("wordwolf"); } catch { /* storage unavailable */ } },
+};
+
+let room = null, player = 0, round = 1, cardOpen = false;
+
+for (const [id, s] of Object.entries(SETS)) {
+  const o = document.createElement("option");
+  o.value = id; o.textContent = `${s.name}（${s.pairs.length}ペア）`;
+  $("set-select").appendChild(o);
+}
+
+$("create-btn").onclick = () => {
+  const seed = 1000 + Math.floor(Math.random() * 9000);
+  const code = `${$("set-select").value}${$("count-select").value}${seed}`;
+  room = parseCode(code);
+  $("created-code").textContent = code;
+  $("created-info").textContent = `${SETS[room.set].name}・${room.players}人`;
+  show("created");
+};
+$("created-back").onclick = () => show("home");
+$("created-join").onclick = () => openPick();
+
+$("join-code").addEventListener("input", (e) => { e.target.value = e.target.value.replace(/\D/g, "").slice(0, 6); $("join-error").textContent = ""; });
+$("join-btn").onclick = () => {
+  const r = parseCode($("join-code").value);
+  if (!r) { $("join-error").textContent = "コードが正しくありません。6けたの数字をもう一度確認してください。"; return; }
+  room = r; openPick();
+};
+
+function openPick() {
+  player = 0;
+  $("pick-code").textContent = room.code;
+  $("pick-set").textContent = `${SETS[room.set].name}・${room.players}人`;
+  const box = $("player-buttons"); box.innerHTML = "";
+  for (let i = 1; i <= room.players; i++) {
+    const b = document.createElement("button");
+    b.textContent = i; b.setAttribute("aria-pressed", "false"); b.setAttribute("aria-label", `プレイヤー${i}`);
+    b.onclick = () => { player = i; [...box.children].forEach((c) => c.setAttribute("aria-pressed", String(c === b))); $("pick-go").disabled = false; };
+    box.appendChild(b);
+  }
+  $("pick-go").disabled = true;
+  show("pick");
+}
+$("pick-back").onclick = () => show("home");
+$("pick-go").onclick = () => { round = 1; startGame(); };
+
+function startGame() {
+  $("g-code").textContent = room.code;
+  $("g-player").textContent = `プレイヤー ${player}`;
+  $("phrases").innerHTML = SETS[room.set].phrases.map(([h, items]) =>
+    `<div><h3>${h}</h3><ul>${items.map((t) => `<li>${t}</li>`).join("")}</ul></div>`).join("");
+  renderRound();
+  show("game");
+}
+
+function renderRound() {
+  cardOpen = false;
+  $("g-round").textContent = `Round ${round}`;
+  $("prev-round").disabled = round <= 1;
+  $("answer-gate").hidden = false; $("answer-body").hidden = true;
+  stopTimer(); $("clock").textContent = "0:00"; $("phase").textContent = "タイマー";
+  renderCard();
+  store.set({ code: room.code, player, round });
+}
+
+function renderCard() {
+  const r = roundFor(room, round);
+  const card = $("card");
+  if (!cardOpen) {
+    card.innerHTML = `<span class="tag">Round ${round}</span><div class="closed">タップして単語を見る<span>周りの人に画面を見せないでね</span></div>`;
+    card.setAttribute("aria-label", "タップして単語を見る");
+    return;
+  }
+  const [word, gloss] = r.wolf === player ? r.minor : r.major;
+  const showGloss = $("gloss-toggle").checked;
+  card.innerHTML = `<span class="tag">Round ${round}・タップで隠す</span><div>
+    <div class="word"></div>${showGloss ? '<div class="gloss"></div>' : ""}
+    ${r.hint === "where" || r.hint === "when" ? `<span class="use">Use: ${r.hint}</span>` : r.hint ? `<span class="use">${r.hint}</span>` : ""}
+    <div class="warn">Don't say this word!</div></div>`;
+  card.querySelector(".word").textContent = word;
+  if (showGloss) card.querySelector(".gloss").textContent = gloss;
+  card.setAttribute("aria-label", "タップして隠す");
+}
+
+$("card").onclick = () => {
+  cardOpen = !cardOpen; renderCard();
+  if (cardOpen && navigator.wakeLock) navigator.wakeLock.request("screen").catch(() => {});
+};
+$("gloss-toggle").onchange = renderCard;
+$("prev-round").onclick = () => { if (round > 1) { round--; renderRound(); } };
+$("next-round").onclick = () => { round++; renderRound(); };
+$("next-btn").onclick = () => { round++; renderRound(); };
+$("reveal-btn").onclick = () => {
+  const r = roundFor(room, round);
+  $("a-major").textContent = r.major[0];
+  $("a-minor").textContent = r.minor[0];
+  $("a-wolf").textContent = r.wolf === player ? `プレイヤー ${r.wolf}（あなた）` : `プレイヤー ${r.wolf}`;
+  $("answer-gate").hidden = true; $("answer-body").hidden = false;
+};
+$("leave-btn").onclick = () => { stopTimer(); store.clear(); room = null; $("join-code").value = ""; show("home"); };
+
+// Timer
+let timerId = null, endAt = 0, audio = null;
+function fmt(ms) { const s = Math.max(0, Math.ceil(ms / 1000)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; }
+function beep() {
+  try {
+    audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+    [0, 0.35, 0.7].forEach((t) => {
+      const o = audio.createOscillator(), g = audio.createGain();
+      o.frequency.value = 880; g.gain.value = 0.15; o.connect(g); g.connect(audio.destination);
+      o.start(audio.currentTime + t); o.stop(audio.currentTime + t + 0.2);
+    });
+  } catch { /* sound unavailable */ }
+  try { navigator.vibrate && navigator.vibrate([200, 100, 200]); } catch { /* vibration unavailable */ }
+}
+function startTimer(seconds, label) {
+  stopTimer();
+  try { audio = audio || new (window.AudioContext || window.webkitAudioContext)(); audio.resume(); } catch { /* sound unavailable */ }
+  endAt = Date.now() + seconds * 1000;
+  $("phase").textContent = label; $("clock").classList.remove("done");
+  const tick = () => {
+    const left = endAt - Date.now();
+    $("clock").textContent = fmt(left);
+    if (left <= 0) { stopTimer(); $("clock").classList.add("done"); $("phase").textContent = `${label} 終了`; beep(); }
+  };
+  tick(); timerId = setInterval(tick, 250);
+}
+function stopTimer() { if (timerId) clearInterval(timerId); timerId = null; }
+$("t-explain").onclick = () => startTimer(180, "説明タイム");
+$("t-question").onclick = () => startTimer(90, "質問タイム");
+$("t-stop").onclick = () => { stopTimer(); $("phase").textContent = "ストップ"; };
+
+// Resume after an accidental reload
+const saved = store.get();
+const savedRoom = saved && parseCode(saved.code);
+if (savedRoom && saved.player >= 1 && saved.player <= savedRoom.players) {
+  room = savedRoom; player = saved.player; round = Math.max(1, saved.round | 0); startGame();
+} else {
+  show("home");
+}
+</script>
+</body></html>
